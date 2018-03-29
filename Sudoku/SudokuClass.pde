@@ -3,22 +3,58 @@ import java.util.Arrays;
 class SudokuBoard {
   int[][] board = new int[9][9];
   final int[][] SOLUTION;
+  final int[][] START;
+  // alter to change difficulty
+  final int HARDNESS = 25;
   SudokuBoard() {
     for (int[] i : board) {
       for (int j : i) {
         j = 0;
       }
-    }
+    }/*
     for (int i = 1; i <=9; i++) {
       setSpace(i, 0);
       view();
-    }
+    }*/
     notRandom();
-    SOLUTION = board.clone();
+    SOLUTION = deepClone(board);
+    gen(board, 0);
+    view();
+    START = deepClone(board);
+    viewAny(START);
+    board = deepClone(START);
+
+  }
+  void placeNum(int num,int y,int x){
+    System.out.println(3);
+    viewAny(START);
+    if(START[y][x] == 0){
+      System.out.println(1);
+      board[y][x] = num;
+    }
   }
 
 
-  void gen() {
+  void gen(int[][] iBoard, int times) {
+    int tempRow = int(random(9));
+    int tempCol = int(random(9));
+    int[][] tBoard = deepClone(iBoard);
+    int[][] safeBoard = deepClone(tBoard);
+    while (tBoard[tempRow][tempCol] == 0) {
+      tempRow = int(random(9));
+      tempCol = int(random(9));
+    }
+    viewAny(tBoard);
+    tBoard[tempRow][tempCol] = 0;
+    viewAny(tBoard);
+    
+    if (checkSolves(0, 0, tBoard, 0) > 1|| times > HARDNESS) {
+
+      board = safeBoard;
+    } else {
+
+      gen(tBoard, times +1);
+    }
   }
   void viewAny(int[][] tBoard) {
     for (int[] i : tBoard) {
@@ -33,7 +69,7 @@ class SudokuBoard {
   void view() {
     viewAny(board);
   }
-  void display() {
+  void display(int srow, int scol) {
     background(255);
     for (int i = 0; i < displayHeight; i+= 100) {
       if ((i/100)%3 == 0) {
@@ -45,16 +81,25 @@ class SudokuBoard {
       line(i, 0, i, displayHeight-1);
       line(0, i, displayWidth-1, i);
     }
+    rectMode(CENTER);
+    fill(255,0,0);
+    rect(100*scol+50,100*srow+50,100,100);
     textSize(30);
     textAlign(CENTER, CENTER);
     int r = 0;
     int c = 0;
     fill(0);
     for (int i = 0; i <= 8; i++) {
-      int y = (100*i)+50;
+      int x = (100*i)+50;
       for (int j = 0; j <= 8; j++) {
-        int x = (100*j)+50;
+        int y = (100*j)+50;
         if (board[r][c]>0) {
+          if(board[r][c] == START[r][c]){
+            fill(0);
+          }
+          else{
+            fill(0,0,255);
+          }
           text(board[r][c], x, y);
         }
         r++;
@@ -62,11 +107,11 @@ class SudokuBoard {
       r=0;
       c++;
     }
-    if(Arrays.deepEquals(board,SOLUTION)){
-      fill(0,255,0);
+    if (Arrays.deepEquals(board, SOLUTION)) {
+      fill(0, 255, 0);
       textSize(270);
       textAlign(CENTER, CENTER);
-      text("Solved",455,450);
+      text("Solved", 455, 450);
     }
   }
 
@@ -134,7 +179,7 @@ class SudokuBoard {
 
 
   boolean isOption(int num, int y, int x, int[][] iBoard) {
-    int[][] tBoard = iBoard.clone();
+    int[][] tBoard = deepClone(iBoard);
     boolean yup = true;
     if (tBoard[y][x] == 0) {
       for (int[] i : tBoard) {
@@ -166,9 +211,10 @@ class SudokuBoard {
   }
 
   int checkSolves(int x, int y, int[][] iBoard, int solves) {
-    int [][] rBoard = iBoard.clone();
+    int [][] rBoard = deepClone(iBoard);
 
     if (rBoard[y][x] > 0) {
+      boolean run = true;
       if (x<8) {
         x++;
       } else {
@@ -177,19 +223,22 @@ class SudokuBoard {
           x = 0;
         } else {
           solves++;
+          run = false;
         }
       }
-      solves = checkSolves(x, y, rBoard, solves);
+      if (run) {
+        solves = checkSolves(x, y, rBoard, solves);
+      }
     } else {
       for (int i = 1; i <= 9; i++) {
         if (isOption(i, y, x, rBoard)) {
-          int[][] trBoard = rBoard.clone();
+          int[][] trBoard = deepClone(rBoard);
           trBoard[y][x] = i;
           if (x<8) {
-            solves = checkSolves(x+1, y, trBoard,solves);
+            solves = checkSolves(x+1, y, trBoard, solves);
           } else {
             if (y<8) {
-              solves = checkSolves(0, y+1, trBoard,solves);
+              solves = checkSolves(0, y+1, trBoard, solves);
             } else {
               solves++;
             }
@@ -200,13 +249,13 @@ class SudokuBoard {
     return solves;
   }
   boolean numFillable(int num, int row, int[][]iBoard) {
-    int[][] tBoard = iBoard.clone();
+    int[][] tBoard = deepClone(iBoard);
     if (row == 0|| row == 9) {
       return true;
     } else {
       for (int i = 8; i >=0; i--) {
         if (isOption(num, row, i, tBoard)) {
-          int[][] rBoard = tBoard.clone();
+          int[][] rBoard = deepClone(tBoard);
           rBoard[row][i] = num;
           if (numFillable(num, row+1, rBoard)) {
             return true;
@@ -220,7 +269,7 @@ class SudokuBoard {
   }
   boolean spacePlaceable(int num, int row, int x, int[][] tBoard) {
 
-    int[][] ttBoard = tBoard.clone();
+    int[][] ttBoard = deepClone(tBoard);
     viewAny(ttBoard);
     ttBoard[row][x] = num;
     viewAny(ttBoard);
@@ -258,10 +307,16 @@ class SudokuBoard {
       new int[]{3, 8, 7, 4, 5, 9, 2, 1, 6}, 
       new int[]{6, 1, 2, 3, 8, 7, 4, 9, 5}, 
       new int[]{5, 4, 9, 2, 1, 6, 7, 3, 8}, 
-      new int[]{7, 6, 3, 5, 3, 4, 1, 8, 9}, 
+      new int[]{7, 6, 3, 5, 2, 4, 1, 8, 9}, 
       new int[]{9, 2, 8, 6, 7, 1, 3, 5, 4}, 
       new int[]{1, 5, 4, 9, 3, 8, 6, 7, 2}       
     };
   }
-  
+  int[][] deepClone(int[][] pass ) {
+    int [][] get = new int[pass.length][];
+    for (int i = 0; i < pass.length; i++){
+      get[i] = pass[i].clone();
+    }
+    return get;
+  }
 }
