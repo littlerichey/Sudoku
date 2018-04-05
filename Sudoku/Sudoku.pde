@@ -1,5 +1,5 @@
-import java.awt.event.KeyEvent; //<>//
-SudokuBoard sudoku = new SudokuBoard(); //<>// //<>// //<>//
+import java.awt.event.KeyEvent; //<>// //<>//
+SudokuBoard sudoku = new SudokuBoard(); //<>// //<>// //<>// //<>//
 int x = 0;
 int y = 0;
 void setup() {

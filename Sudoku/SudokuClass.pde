@@ -1,36 +1,75 @@
-import java.util.Stack; //<>// //<>// //<>//
+import java.util.Stack; //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
 import java.util.Arrays;
 class SudokuBoard {
+  boolean problem = false;
   int[][] board = new int[9][9];
   final int[][] SOLUTION;
   final int[][] START;
   // alter to change difficulty
-  final int HARDNESS = 25;
+  final int HARDNESS = 100;
+  boolean solved = false;
   SudokuBoard() {
+    do{
+    problem = false;
+    blank(); //<>// //<>//
+   // view();
+    randomGen(); //<>// //<>//
+    checkedSolution();
+   // view();
+    }while(problem);/*
     for (int[] i : board) {
       for (int j : i) {
         j = 0;
       }
-    }/*
-    for (int i = 1; i <=9; i++) {
-      setSpace(i, 0);
-      view();
     }*/
-    notRandom();
-    SOLUTION = deepClone(board);
+   // view();
+    /*
+    altRandomGen();
+    view();*/
+    //notRandom(); //<>// //<>//
+    SOLUTION = deepClone(board); //<>// //<>//
     gen(board, 0);
-    view();
+    //view();
     START = deepClone(board);
-    viewAny(START);
+    //viewAny(START);
     board = deepClone(START);
-
   }
-  void placeNum(int num,int y,int x){
+  void placeNum(int num, int y, int x) {
     System.out.println(3);
-    viewAny(START);
-    if(START[y][x] == 0){
+    //viewAny(SOLUTION);
+    if (START[y][x] == 0) {
       System.out.println(1);
       board[y][x] = num;
+    }
+  }
+  void blank(){
+    for (int i = 0; i <=8; i++) {
+      for ( int j = 0; j <=8; j++) {
+        board[i][j] = 0;
+      }
+    }
+  }
+  void checkedSolution(){
+    for (int i = 0; i <=8; i++) {
+      for ( int j = 0; j <=8; j++) {
+        if(board[i][j] == 0){
+          problem = true;
+        }
+      }
+    }
+  }
+  void randomGen(){
+    for (int i = 1; i <=9; i++) {
+      for ( int j = 0; j <=8; j++) {
+        setSpace(i, j);
+      }
+    }
+  }
+  void altRandomGen(){
+    for (int i = 0; i <=8; i++) {
+      for ( int j = 0; j <=8; j++) {
+        altSetSpace(i, j);
+      }
     }
   }
 
@@ -44,10 +83,10 @@ class SudokuBoard {
       tempRow = int(random(9));
       tempCol = int(random(9));
     }
-    viewAny(tBoard);
+    //viewAny(tBoard);
     tBoard[tempRow][tempCol] = 0;
-    viewAny(tBoard);
-    
+    //viewAny(tBoard);
+
     if (checkSolves(0, 0, tBoard, 0) > 1|| times > HARDNESS) {
 
       board = safeBoard;
@@ -56,7 +95,7 @@ class SudokuBoard {
       gen(tBoard, times +1);
     }
   }
-  void viewAny(int[][] tBoard) {
+  /*void viewAny(int[][] tBoard) {
     for (int[] i : tBoard) {
       for (int j : i) {
         System.out.print(j);
@@ -68,7 +107,7 @@ class SudokuBoard {
   }
   void view() {
     viewAny(board);
-  }
+  }*/
   void display(int srow, int scol) {
     background(255);
     for (int i = 0; i < displayHeight; i+= 100) {
@@ -82,8 +121,10 @@ class SudokuBoard {
       line(0, i, displayWidth-1, i);
     }
     rectMode(CENTER);
-    fill(255,0,0);
-    rect(100*scol+50,100*srow+50,100,100);
+    fill(255, 0, 0);
+    if(!solved){
+      rect(100*scol+50, 100*srow+50, 100, 100);
+    }
     textSize(30);
     textAlign(CENTER, CENTER);
     int r = 0;
@@ -94,11 +135,10 @@ class SudokuBoard {
       for (int j = 0; j <= 8; j++) {
         int y = (100*j)+50;
         if (board[r][c]>0) {
-          if(board[r][c] == START[r][c]){
+          if (board[r][c] == START[r][c]) {
             fill(0);
-          }
-          else{
-            fill(0,0,255);
+          } else {
+            fill(0, 0, 255);
           }
           text(board[r][c], x, y);
         }
@@ -107,11 +147,38 @@ class SudokuBoard {
       r=0;
       c++;
     }
-    if (Arrays.deepEquals(board, SOLUTION)) {
+    if(Arrays.deepEquals(board, SOLUTION)){
+      solved = true;
+    }
+    if (solved) {
       fill(0, 255, 0);
       textSize(270);
       textAlign(CENTER, CENTER);
       text("Solved", 455, 450);
+    }
+  }
+  void altSetSpace(int row, int col){
+    int temp = int(random(1,10));
+    boolean fail = true;
+    if (isOption(temp, row, col, board)) {
+      if (hardSpacePlaceable(temp, row, col, board)) {
+        board[row][col] = temp;
+        fail = false;
+      }
+    } else {
+      for (int i=01; i <= 9; i++) {
+        if (isOption(i, row, col, board)) {
+          if (hardSpacePlaceable(i, row, col, board)) {
+            fail = false;
+            board[row][col] = i;
+            i += 10;
+          }
+        }
+      }
+      if (fail) {
+        System.out.println("fail at /nrow: " + row+"/ncolumn: "+ col);
+       // view();
+      }
     }
   }
 
@@ -156,14 +223,14 @@ class SudokuBoard {
     int temp = int(random(9));
     boolean fail = true;
     if (isOption(num, row, temp, board)) {
-      if (spacePlaceable(num, row, temp, board)) {
+      if (softSpacePlaceable(num, row, temp, board)) {
         board[row][temp] = num;
         fail = false;
       }
     } else {
       for (int i=0; i < board[row].length; i++) {
         if (isOption(num, row, i, board)) {
-          if (spacePlaceable(num, row, i, board)) {
+          if (softSpacePlaceable(num, row, i, board)) {
             fail = false;
             board[row][i] = num;
             i += board[row].length;
@@ -171,8 +238,9 @@ class SudokuBoard {
         }
       }
       if (fail) {
+        problem = true;
         System.out.println("fail at " + num);
-        view();
+        //view();
       }
     }
   }
@@ -267,14 +335,31 @@ class SudokuBoard {
 
     return false;
   }
-  boolean spacePlaceable(int num, int row, int x, int[][] tBoard) {
+  boolean softSpacePlaceable(int num, int row, int x, int[][] tBoard) {
 
     int[][] ttBoard = deepClone(tBoard);
-    viewAny(ttBoard);
+    //viewAny(ttBoard);
     ttBoard[row][x] = num;
-    viewAny(ttBoard);
-    view();
+    //viewAny(ttBoard);
+    //view();
     return numFillable(num, row+1, ttBoard);
+  }
+  boolean hardSpacePlaceable(int num, int row, int x, int[][] tBoard) {
+    boolean yup = true;
+    int[][] ttBoard = deepClone(tBoard);
+    ttBoard[row][x] = num;
+    for( int i = 1; i <= 9; i++){
+      int trow = row;
+      for(int j:ttBoard[row]){
+        if(j == i){
+          trow = row+1;
+        }
+      }
+      if(!(numFillable(i, trow, ttBoard))){
+        yup = false;
+      }
+    }
+    return yup;
   }
 
   /*
@@ -314,7 +399,7 @@ class SudokuBoard {
   }
   int[][] deepClone(int[][] pass ) {
     int [][] get = new int[pass.length][];
-    for (int i = 0; i < pass.length; i++){
+    for (int i = 0; i < pass.length; i++) {
       get[i] = pass[i].clone();
     }
     return get;
