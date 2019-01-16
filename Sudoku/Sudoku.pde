@@ -1,9 +1,16 @@
 import java.awt.event.KeyEvent; //<>// //<>//
+int s;  //<>//
 SudokuBoard sudoku = new SudokuBoard(); //<>// //<>// //<>// //<>//
 int x = 0;
 int y = 0;
+//int s = int(displayHeight*.9); //<>//
 void setup() {
-  size(901, 901);
+  s = displayHeight*9/10;
+  s-=(s%9)-1;
+  surface.setResizable(true); //<>//
+  println(s);
+  surface.setSize(s,s);
+  surface.setResizable(false);
   background(255);
   frameRate(20);
 }

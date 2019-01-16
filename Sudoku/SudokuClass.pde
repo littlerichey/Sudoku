@@ -6,7 +6,7 @@ class SudokuBoard {
   final int[][] SOLUTION;
   final int[][] START;
   // alter to change difficulty
-  final int HARDNESS = 100;
+  final int HARDNESS = 99999999;
   boolean solved = false;
   SudokuBoard() {
     do{
@@ -110,8 +110,13 @@ class SudokuBoard {
   }*/
   void display(int srow, int scol) {
     background(255);
-    for (int i = 0; i < displayHeight; i+= 100) {
-      if ((i/100)%3 == 0) {
+    rectMode(CENTER);
+    fill(255, 0, 0);
+    if(!solved){
+      rect((height/9)*scol+(height/18), (height/9)*srow+(height/18), (height/9), (height/9));
+    }
+    for (int i = 0; i < displayHeight; i+= (height/9)) {
+      if ((i/(height/9))%3 == 0) {
         strokeWeight(3);
       } else {
         strokeWeight(1);
@@ -120,20 +125,16 @@ class SudokuBoard {
       line(i, 0, i, displayHeight-1);
       line(0, i, displayWidth-1, i);
     }
-    rectMode(CENTER);
-    fill(255, 0, 0);
-    if(!solved){
-      rect(100*scol+50, 100*srow+50, 100, 100);
-    }
+    
     textSize(30);
     textAlign(CENTER, CENTER);
     int r = 0;
     int c = 0;
     fill(0);
     for (int i = 0; i <= 8; i++) {
-      int x = (100*i)+50;
+      int x = ((height/9)*i)+(height/18);
       for (int j = 0; j <= 8; j++) {
-        int y = (100*j)+50;
+        int y = ((height/9)*j)+(height/18);
         if (board[r][c]>0) {
           if (board[r][c] == START[r][c]) {
             fill(0);
@@ -152,9 +153,9 @@ class SudokuBoard {
     }
     if (solved) {
       fill(0, 255, 0);
-      textSize(270);
+      textSize(height/3.5);
       textAlign(CENTER, CENTER);
-      text("Solved", 455, 450);
+      text("Solved", height/2, height/2);
     }
   }
   void altSetSpace(int row, int col){
