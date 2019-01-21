@@ -108,10 +108,10 @@ class SudokuBoard {
   void view() {
     viewAny(board);
   }*/
-  void display(int srow, int scol) {
+  void display(int srow, int scol, boolean check) {
     background(255);
     rectMode(CENTER);
-    fill(255, 0, 0);
+    fill(0, 255, 0);
     if(!solved){
       rect((height/9)*scol+(height/18), (height/9)*srow+(height/18), (height/9), (height/9));
     }
@@ -138,8 +138,10 @@ class SudokuBoard {
         if (board[r][c]>0) {
           if (board[r][c] == START[r][c]) {
             fill(0);
-          } else {
-            fill(0, 0, 255);
+          } else if (board[r][c] != SOLUTION[r][c] && check){
+            fill(255, 0, 0);
+          } else{
+            fill(0,0,255);
           }
           text(board[r][c], x, y);
         }

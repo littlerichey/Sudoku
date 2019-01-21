@@ -3,11 +3,12 @@ int s;  //<>//
 SudokuBoard sudoku = new SudokuBoard(); //<>// //<>// //<>// //<>//
 int x = 0;
 int y = 0;
-//int s = int(displayHeight*.9); //<>//
+boolean check = false; //<>//
+//int s = int(displayHeight*.9);
 void setup() {
   s = displayHeight*9/10;
-  s-=(s%9)-1;
-  surface.setResizable(true); //<>//
+  s-=(s%9)-1; //<>//
+  surface.setResizable(true);
   println(s);
   surface.setSize(s,s);
   surface.setResizable(false);
@@ -15,7 +16,7 @@ void setup() {
   frameRate(20);
 }
 void draw() {
-  sudoku.display(y, x);
+  sudoku.display(y, x, check);
   if (keyPressed) {
     switch(key) {
     case '1': 
@@ -46,6 +47,14 @@ void draw() {
     case '9': 
       sudoku.placeNum(9, y, x);
       break;
+    case '0': 
+      sudoku.placeNum(0, y, x);
+      break;
+    case ' ':
+      check = true;
+      break;
+    default:
+      check = false;
     }
     switch(keyCode) {
     case UP:
